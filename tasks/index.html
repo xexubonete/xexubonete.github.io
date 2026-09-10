@@ -175,8 +175,14 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
   text-transform:uppercase;color:var(--mut)}
 .hechas-cab:hover{color:var(--acc)}
 .hechas-cab .chev{font-size:8px}
-.hechas-sub{padding:6px 13px 2px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--mut);opacity:.8}
+.hechas-sub{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;
+  padding:7px 13px 3px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mut)}
+.hechas-sub:hover{background:var(--sf2)}
+.hechas-sub:hover .chev,.hechas-sub:hover .tt{color:var(--acc)}
+.hechas-sub .chev{font-size:11px;color:var(--ink2);width:11px;flex:0 0 auto;line-height:1}
+.hechas-sub .cnt{margin-left:auto;font-size:9px;color:var(--mut);background:var(--sf);
+  border-radius:9px;padding:0 6px}
 .t .edit{width:100%;font:inherit;font-size:12.5px;line-height:1.35;color:var(--ink);
   background:var(--sf);border:1px solid var(--acc);border-radius:6px;padding:2px 6px;outline:none}
 .hechas-sub .entera{font-size:8px;letter-spacing:.06em;color:var(--acc);opacity:.9}
@@ -517,7 +523,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
     if (propias.length) bloques.push({ titulo: null, tareas: propias });
     for (const s of c.subcategorias || []) {
       const hs = (s.tareas || []).filter(t => t.hecho);
-      if (hs.length) bloques.push({ titulo: s.titulo, tareas: hs, entera: hs.length === (s.tareas || []).length });
+      if (hs.length) bloques.push({ id: s.id, titulo: s.titulo, tareas: hs,
+                                    entera: hs.length === (s.tareas || []).length });
     }
     const total = bloques.reduce((n, b) => n + b.tareas.length, 0);
     if (!total) return "";
@@ -527,10 +534,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
         <div class="hechas-cab" data-hechas="${esc(c.id)}" role="button" tabindex="0">
           <span class="chev">${abierto ? "▾" : "▸"}</span>${total} hecha${total > 1 ? "s" : ""}
         </div>
-        ${!abierto ? "" : bloques.map(b => `
-          ${b.titulo ? `<div class="hechas-sub">${esc(b.titulo)}${
-              b.entera ? ` <span class="entera">completa</span>` : ""}</div>` : ""}
-          ${b.tareas.map(filaTarea).join("")}`).join("")}
+        ${!abierto ? "" : bloques.map(b => {
+          if (!b.titulo) return b.tareas.map(filaTarea).join("");
+          const k = "hechas/" + c.id + "/" + b.id;
+          const plegado = Boolean(cerradas[k]);
+          return `
+            <div class="hechas-sub ${plegado ? "cerrada" : ""}" data-cerrar="${esc(k)}"
+                 role="button" tabindex="0" aria-expanded="${!plegado}">
+              <span class="chev">${plegado ? "▸" : "▾"}</span>
+              <span class="tt">${esc(b.titulo)}</span>
+              ${b.entera ? `<span class="entera">completa</span>` : ""}
+              ${plegado ? `<span class="cnt">${b.tareas.length}</span>` : ""}
+            </div>
+            ${plegado ? "" : b.tareas.map(filaTarea).join("")}`;
+        }).join("")}
       </div>`;
   }
 
