@@ -159,10 +159,18 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 .items .subnota{padding-left:9px}
 .items .hab{padding-left:9px}
 .hechas{margin:0;border-top:1px solid var(--bd);background:var(--sf3);
-  padding:7px 0 9px;flex:0 0 auto}
+  padding:7px 0 0;flex:0 0 auto;max-height:45%;overflow-y:auto}
+.hechas.abierto{padding-bottom:9px}
+.col.plegada .cuerpo,.col.plegada .hechas{display:none}
+.col > header{cursor:pointer;user-select:none}
+.col .fila1 .chev{font-size:9px;color:var(--mut);flex:0 0 auto}
+.col.plegada{align-self:start}
 .hechas .t{opacity:.5}
-.hechas-cab{padding:0 13px 5px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+.hechas-cab{cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;
+  padding:0 13px 7px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--mut)}
+.hechas-cab:hover{color:var(--acc)}
+.hechas-cab .chev{font-size:8px}
 .hechas-sub{padding:6px 13px 2px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--mut);opacity:.8}
 .t .edit{width:100%;font:inherit;font-size:12.5px;line-height:1.35;color:var(--ink);
@@ -374,12 +382,16 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
   const cuenta = () => { const t = todas(); return [t.filter(x => x.hecho).length, t.length]; };
   const VISTA = "tareas.vista";
   let cerradas = {};
+  let verHechas = {};
+  let colCerradas = {};
   try {
     const v = JSON.parse(localStorage.getItem(VISTA) || "{}");
     cerradas = v.cerradas || {};
+    verHechas = v.verHechas || {};
+    colCerradas = v.colCerradas || {};
   } catch (e) {}
   const guardarVista = () => {
-    try { localStorage.setItem(VISTA, JSON.stringify({ cerradas })); } catch (e) {}
+    try { localStorage.setItem(VISTA, JSON.stringify({ cerradas, verHechas, colCerradas })); } catch (e) {}
   };
   function catDeHoy() {
     if (!datos.dias) return null;
@@ -505,10 +517,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
     }
     const total = bloques.reduce((n, b) => n + b.tareas.length, 0);
     if (!total) return "";
+    const abierto = Boolean(verHechas[c.id]);
     return `
-      <div class="hechas">
-        <div class="hechas-cab">${total} hecha${total > 1 ? "s" : ""}</div>
-        ${bloques.map(b => `
+      <div class="hechas ${abierto ? "abierto" : ""}">
+        <div class="hechas-cab" data-hechas="${esc(c.id)}" role="button" tabindex="0">
+          <span class="chev">${abierto ? "▾" : "▸"}</span>${total} hecha${total > 1 ? "s" : ""}
+        </div>
+        ${!abierto ? "" : bloques.map(b => `
           ${b.titulo ? `<div class="hechas-sub">${esc(b.titulo)}${
               b.entera ? ` <span class="entera">completa</span>` : ""}</div>` : ""}
           ${b.tareas.map(filaTarea).join("")}`).join("")}
@@ -529,9 +544,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
       const tod = tareasDe(c), hechas = tod.filter(x => x.hecho).length;
       const esHoy = hoy.includes(c.id);
       return `
-        <section class="col ${esHoy ? "hoy" : ""}">
-          <header>
+        <section class="col ${esHoy ? "hoy" : ""} ${colCerradas[c.id] ? "plegada" : ""}">
+          <header data-col="${esc(c.id)}" role="button" tabindex="0" title="Plegar o desplegar">
             <div class="fila1">
+              <span class="chev">${colCerradas[c.id] ? "▸" : "▾"}</span>
               <h2>${esc(c.titulo)}</h2>
               ${esHoy ? `<span class="hoyb">HOY</span>` : ""}
               <span class="n">${hechas}/${tod.length}</span>
@@ -618,6 +634,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
       <input type="text" placeholder="Nueva tarea…" maxlength="200" required></form>`;
     hueco.querySelector("input").focus();
   });
+  document.addEventListener("click", e => {
+    const p = e.target.closest("[data-hechas]");
+    if (p) { const k = p.dataset.hechas; verHechas[k] = !verHechas[k]; guardarVista(); render(); return; }
+    const col = e.target.closest("[data-col]");
+    if (col) { const k = col.dataset.col; colCerradas[k] = !colCerradas[k]; guardarVista(); render(); }
+  });
+
   function alternarSub(el) {
     const k = el.dataset.cerrar;
     cerradas[k] = !cerradas[k];
