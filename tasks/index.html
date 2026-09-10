@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>·</title>
+<style>
+:root{
+  --bg:#EBEEF2; --sf:#FFFFFF; --sf2:#F5F7F9; --sf3:#EDF1F5;
+  --ink:#14181E; --ink2:#3B4551; --mut:#6C7784;
+  --bd:#DEE4EA; --bd2:#C9D2DB;
+  --acc:#D8481E; --accink:#B23A16; --accbg:#FBE7DE;
+  --good:#2C7A4E; --goodbg:#DCEFEB;
+  --warn:#B47714; --warnbg:#F5E9CF;
+  --dang:#BE3A31; --dangbg:#F7E2E0;
+  --alt:#6E52A0; --altbg:#EDE7F5;
+  --sh:0 1px 2px rgba(20,24,30,.04),0 6px 20px rgba(20,24,30,.07);
+  --mono:"SF Mono","Cascadia Code",Consolas,ui-monospace,monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0B0E12; --sf:#151B22; --sf2:#11161C; --sf3:#1B222A;
+  --ink:#ECF1F6; --ink2:#B8C3CE; --mut:#8595A2;
+  --bd:#242D36; --bd2:#36424E;
+  --acc:#FF6A3C; --accink:#FF8A63; --accbg:#2E1710;
+  --good:#4CBCA7; --goodbg:#102A25;
+  --warn:#E1AB4F; --warnbg:#2E230E;
+  --dang:#E86A62; --dangbg:#2E1413;
+  --alt:#AC8FD9; --altbg:#211A2E;
+  --sh:0 1px 2px rgba(0,0,0,.35),0 6px 22px rgba(0,0,0,.4);
+}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+[hidden]{display:none!important}
+#app{display:flex;flex-direction:column;height:100dvh}
+.barra{flex:0 0 auto;padding:12px 16px 0}
+.tablero{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);
+  gap:11px;padding:11px 16px 16px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:1.12rem;font-weight:800;letter-spacing:-.02em;margin:0;white-space:nowrap}
+.top h1 span{color:var(--acc)}
+.prog{flex:1;min-width:90px;max-width:210px;height:6px;background:var(--sf3);
+  border:1px solid var(--bd);border-radius:5px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.cuenta{font-family:var(--mono);font-size:12px;color:var(--mut);white-space:nowrap}
+.cuenta b{color:var(--acc)}
+#estado{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;
+  border:1px solid var(--bd);background:var(--sf);border-radius:20px;padding:3px 10px;
+  color:var(--mut);white-space:nowrap;max-width:290px;overflow:hidden;text-overflow:ellipsis}
+#estado .luz{width:7px;height:7px;border-radius:50%;background:var(--mut);flex:0 0 auto}
+#estado.trabajando{border-color:var(--warn);color:var(--warn)} #estado.trabajando .luz{background:var(--warn);animation:late 1.1s infinite}
+#estado.ok{border-color:var(--good);color:var(--good)} #estado.ok .luz{background:var(--good)}
+#estado.mal{border-color:var(--dang);color:var(--dang)} #estado.mal .luz{background:var(--dang)}
+@keyframes late{0%,100%{opacity:1}50%{opacity:.25}}
+.acciones{display:flex;gap:6px;margin-left:auto}
+.btn{font:inherit;font-size:12px;padding:4px 11px;border:1px solid var(--bd2);background:var(--sf);
+  color:var(--ink2);border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+#bloque{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;
+  padding:7px 11px;background:var(--sf);border:1px solid var(--bd);border-radius:10px}
+#bloque .q{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accink);font-weight:700;white-space:nowrap}
+#bloque .obj{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:650;
+  background:var(--sf3);border:1px solid var(--bd);border-radius:20px;padding:3px 11px 3px 8px;
+  white-space:nowrap;cursor:default}
+#bloque .obj .ic{font-size:13px;line-height:1}
+#bloque .quedan{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--mut);white-space:nowrap}
+#bloque .quedan b{color:var(--acc)}
+#bloque .desp{border:none;background:none;color:var(--mut);cursor:pointer;font-size:13px;padding:0 3px}
+#bloque .desp:hover{color:var(--acc)}
+#notas-obj{width:100%;display:none;gap:9px;margin-top:4px;grid-template-columns:repeat(4,1fr)}
+#accesos{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px}
+#accesos .q{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--mut);font-weight:700;white-space:nowrap;margin-right:1px}
+#accesos a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+  text-decoration:none;color:var(--ink2);background:var(--sf);border:1px solid var(--bd);
+  border-radius:20px;padding:4px 12px 4px 9px;white-space:nowrap}
+#accesos a:hover{border-color:var(--acc);color:var(--acc);background:var(--sf3)}
+#accesos a .ic{font-size:13px;line-height:1}
+#accesos a .ar{font-family:var(--mono);font-size:10px;color:var(--mut);margin-left:1px}
+#accesos a:hover .ar{color:var(--acc)}
+#visor[hidden]{display:none}
+#visor{position:fixed;inset:0;z-index:90;background:rgba(8,11,15,.82);
+  display:flex;align-items:center;justify-content:center;padding:2vh 2vw}
+#visor .caja{width:100%;height:100%;max-width:1500px;background:var(--sf);
+  border:1px solid var(--bd2);border-radius:12px;box-shadow:0 18px 60px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;overflow:hidden}
+#visor .cab{display:flex;align-items:center;gap:9px;padding:8px 12px;
+  border-bottom:1px solid var(--bd);background:var(--sf2);flex:0 0 auto}
+#visor .cab h3{margin:0;font-size:14px;font-weight:700}
+#visor .cab .sub{font-size:11.5px;color:var(--mut)}
+#visor .cab .der{margin-left:auto;display:flex;gap:6px}
+#visor #v-cuerpo{flex:1;display:flex;flex-direction:column;min-height:0}
+#visor iframe{flex:1;width:100%;border:none;background:#525659;min-height:0}
+#visor .aviso{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:11px;padding:26px;text-align:center;color:var(--ink2);font-size:13.5px}
+#visor .aviso .gr{font-size:30px;line-height:1}
+@media (max-width:640px){ #visor{padding:0} #visor .caja{border-radius:0;border:none} }
+#notas-obj.abierto{display:grid}
+#notas-obj div{font-size:11.5px;color:var(--mut);line-height:1.35;border-left:2px solid var(--bd);padding-left:8px}
+@media(max-width:820px){#notas-obj{grid-template-columns:1fr 1fr}}
+.col{display:flex;flex-direction:column;min-height:0;background:var(--sf2);
+  border:1px solid var(--bd);border-radius:13px;overflow:hidden;transition:border-color .2s}
+.col.hoy{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),var(--sh)}
+.col > header{flex:0 0 auto;padding:10px 13px 9px;background:var(--sf);border-bottom:1px solid var(--bd)}
+.col.hoy > header{background:linear-gradient(180deg,var(--accbg),var(--sf) 85%)}
+.col .fila1{display:flex;align-items:baseline;gap:8px}
+.col h2{margin:0;font-size:.98rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+.col.hoy h2{color:var(--accink)}
+.col .hoyb{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;
+  background:var(--acc);color:#fff;border-radius:4px;padding:1px 6px}
+.col .n{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.col .dias{font-family:var(--mono);font-size:10.5px;color:var(--mut);margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.col .barrita{height:3px;background:var(--sf3);border-radius:3px;margin-top:7px;overflow:hidden}
+.col .barrita i{display:block;height:100%;background:var(--acc);width:0}
+.col .cuerpo{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:5px 0 9px}
+.col .cuerpo::-webkit-scrollbar{width:7px}
+.col .cuerpo::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:4px}
+.sub{display:flex;align-items:center;gap:5px;padding:18px 13px 5px;cursor:pointer;user-select:none}
+.sub:hover h3,.sub:hover .chev{color:var(--acc)}
+.sub h3{margin:0;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--mut);font-weight:700}
+.sub .chev{font-size:9px;color:var(--mut);width:9px;flex:0 0 auto;line-height:1}
+.sub .cnt{font-family:var(--mono);font-size:9.5px;color:var(--mut);background:var(--sf3);
+  border:1px solid var(--bd);border-radius:9px;padding:0 5px}
+.sub.cerrada h3{color:var(--ink2)}
+.sub .mas{margin-left:auto;border:none;background:none;color:var(--mut);cursor:pointer;
+  font-size:15px;line-height:1;padding:0 3px;border-radius:5px;opacity:0}
+.col:hover .sub .mas{opacity:.6}
+.sub .mas:hover{opacity:1;color:var(--acc)}
+.subnota{padding:0 13px 3px;font-size:10.5px;color:var(--mut);line-height:1.35}
+.t{display:flex;align-items:flex-start;gap:8px;padding:4px 13px;position:relative}
+.t:hover{background:var(--sf3)}
+.t input[type=checkbox]{appearance:none;width:15px;height:15px;flex:0 0 auto;margin-top:2px;
+  border:1.8px solid var(--bd2);border-radius:4px;background:var(--sf);cursor:pointer;position:relative}
+.t input:hover{border-color:var(--acc)}
+.t input:checked{background:var(--acc);border-color:var(--acc)}
+.t input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
+.t input:disabled{cursor:not-allowed;opacity:.4}
+.t .x{flex:1;min-width:0;font-size:12.5px;line-height:1.35}
+.t.ok .x{text-decoration:line-through;color:var(--mut)}
+.dur{font-family:var(--mono);font-size:9.5px;color:var(--mut);background:var(--sf);
+  border:1px solid var(--bd);border-radius:9px;padding:0 5px;margin-left:5px;white-space:nowrap}
+.t.bloq{opacity:.6}
+.t .lock{cursor:pointer;font-size:10px}
+.t .del{position:absolute;right:4px;top:3px;border:none;background:var(--sf3);color:var(--mut);
+  font-size:14px;line-height:1;cursor:pointer;padding:1px 5px;border-radius:5px;opacity:0}
+.t:hover .del{opacity:1}
+.t .del:hover{color:var(--dang);background:var(--dangbg)}
+.hab{display:flex;gap:8px;padding:4px 13px;font-size:12.5px;color:var(--ink2)}
+.hab .p{color:var(--mut)}
+.items{margin-left:26px;border-left:2px solid var(--bd);padding-bottom:2px}
+.items .t{padding-left:9px}
+.items .subnota{padding-left:9px}
+.items .hab{padding-left:9px}
+.hechas{margin-top:5px}
+.hechas .t{opacity:.5}
+.nueva{display:flex;gap:5px;padding:4px 13px 2px}
+.nueva input{flex:1;min-width:0;font:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--acc);
+  border-radius:7px;background:var(--sf);color:var(--ink)}
+.nueva input:focus{outline:none}
+#puerta{max-width:420px;margin:14vh auto;padding:0 18px}
+#puerta .caja{background:var(--sf);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:26px}
+#puerta h2{margin:0 0 6px;font-size:1.3rem;font-weight:800}
+#puerta p{color:var(--ink2);font-size:14px;margin:0 0 16px}
+#puerta input{width:100%;font-family:var(--mono);font-size:13px;padding:10px 12px;
+  border:1px solid var(--bd2);border-radius:9px;background:var(--sf2);color:var(--ink)}
+#puerta .fila{display:flex;gap:9px;margin-top:12px}
+#puerta button{font:inherit;font-size:14px;font-weight:600;padding:9px 18px;border:1px solid var(--acc);
+  background:var(--acc);color:#fff;border-radius:9px;cursor:pointer}
+#puerta .err{color:var(--dang);font-size:13px;margin-top:10px;display:none}
+#puerta #p-github{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;
+  font-size:15px;padding:12px 18px;border:1px solid var(--bd2);border-radius:10px;
+  background:var(--ink);color:var(--bg)}
+#puerta #p-github:hover{filter:brightness(1.15)}
+#puerta #p-github:disabled{opacity:.55;cursor:progress}
+#puerta #p-github svg{width:19px;height:19px;fill:currentColor}
+#p-manual{display:none}
+#puerta #p-alt{background:none;border:none;color:var(--mut);font-size:12.5px;text-decoration:underline;
+  cursor:pointer;padding:0;margin-top:14px;font-family:inherit}
+#puerta #p-alt:hover{color:var(--acc)}
+@media(max-width:900px){
+  body{overflow:auto}
+  #app{height:auto}
+  .tablero{grid-template-columns:1fr;padding-bottom:40px}
+  .col{max-height:none}
+  .col .cuerpo{overflow:visible}
+}
+</style>
+<script>
+  const CONFIG = {
+    rama:   "main",
+    auth:   "https://tasks-auth.xexubonete.workers.dev",
+    espera: 2000,
+    sondeo: 60000,
+  };
+</script>
+<div id="puerta" hidden>
+  <div class="caja">
+    <h2>Acceso</h2>
+    <button id="p-github">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      Entrar con GitHub
+    </button>
+    <div class="err" id="p-err"></div>
+    <button id="p-alt" type="button">Usar una clave manual</button>
+    <div id="p-manual">
+      <input id="p-token" type="password" autocomplete="off" spellcheck="false" aria-label="Clave">
+      <div class="fila"><button id="p-ok">Entrar</button></div>
+    </div>
+  </div>
+</div>
+<div id="app" hidden>
+  <div class="barra">
+    <div class="top">
+      <h1 id="rotulo"></h1>
+      <div class="prog"><i id="pbar"></i></div>
+      <div class="cuenta"><b id="phechas">0</b>/<span id="ptotal">0</span></div>
+      <div id="estado"><span class="luz"></span><span id="estadotxt">…</span></div>
+      <div class="acciones">
+        <button class="btn" id="b-refrescar" title="Traer cambios de otro dispositivo">Refrescar</button>
+        <button class="btn" id="b-salir" title="Borrar la sesión de este dispositivo">Salir</button>
+      </div>
+    </div>
+    <div id="bloque" hidden></div>
+    <div id="accesos" hidden></div>
+  </div>
+  <main class="tablero" id="tablero"></main>
+</div>
+<div id="visor" hidden>
+  <div class="caja">
+    <div class="cab">
+      <div>
+        <h3 id="v-tit"></h3>
+        <div class="sub" id="v-sub"></div>
+      </div>
+      <div class="der">
+        <button class="btn" id="v-aparte" title="Abrirlo en una pestaña nueva">Abrir aparte</button>
+        <button class="btn" id="v-cerrar">Cerrar</button>
+      </div>
+    </div>
+    <div id="v-cuerpo"></div>
+  </div>
+</div>
+<script>
+(() => {
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const CLAVE = "tareas.token";
+  const CCFG = "tareas.cfg";
+  let CFG = null;
+  try { CFG = JSON.parse(localStorage.getItem(CCFG) || "null"); } catch (e) {}
+  const guardarCfg = (c) => {
+    CFG = c;
+    try { localStorage.setItem(CCFG, JSON.stringify(c)); } catch (e) {}
+  };
+  async function pedirCfg(t) {
+    if (CFG && CFG.dueno && CFG.repo && CFG.ruta) return CFG;
+    const r = await fetch(CONFIG.auth + "/config", { headers: { Authorization: "Bearer " + t } });
+    if (!r.ok) throw new Error("sin acceso");
+    guardarCfg(await r.json());
+    return CFG;
+  }
+  const API = () => `https://api.github.com/repos/${CFG.dueno}/${CFG.repo}/contents/${CFG.ruta}`;
+  let token = null, datos = null, sha = null;
+  let temporizador = null, guardando = false, sucio = false;
+  const esc = s => String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const hoy = () => new Date().toISOString().slice(0, 10);
+  const aB64 = s => {
+    const b = new TextEncoder().encode(s);
+    let r = "";
+    for (let i = 0; i < b.length; i += 0x8000) r += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+    return btoa(r);
+  };
+  const deB64 = s => new TextDecoder().decode(
+    Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0)));
+  function estado(clase, texto) {
+    $("#estado").className = clase;
+    $("#estadotxt").textContent = texto;
+  }
+  async function api(metodo, cuerpo) {
+    const r = await fetch(API() + (metodo === "GET" ? `?ref=${encodeURIComponent(CONFIG.rama)}&t=${Date.now()}` : ""), {
+      method: metodo,
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(cuerpo ? { "Content-Type": "application/json" } : {}),
+      },
+      ...(cuerpo ? { body: JSON.stringify(cuerpo) } : {}),
+      cache: "no-store",
+    });
+    return r;
+  }
+  function tokenInvalido(msg) {
+    localStorage.removeItem(CLAVE); localStorage.removeItem(CCFG); CFG = null;
+    token = null;
+    $("#app").hidden = true;
+    $("#puerta").hidden = false;
+    $("#p-err").style.display = "block";
+    $("#p-err").textContent = msg;
+  }
+  async function cargar() {
+    estado("trabajando", "Cargando…");
+    let r;
+    try { r = await api("GET"); }
+    catch { return estado("mal", "Sin conexión"); }
+    if (r.status === 401) return tokenInvalido("Clave incorrecta o caducada.");
+    if (r.status === 403) return estado("mal", "Sin permiso de lectura (403)");
+    if (r.status === 404) return estado("mal", "No encuentro los datos (404)");
+    if (!r.ok) return estado("mal", "Error " + r.status);
+    const j = await r.json();
+    sha = j.sha;
+    try { datos = JSON.parse(deB64(j.content)); }
+    catch { return estado("mal", "Datos corruptos"); }
+    render();
+    estado("ok", "Al día");
+  }
+  async function guardar() {
+    if (guardando) { sucio = true; return; }
+    guardando = true;
+    estado("trabajando", "Guardando…");
+    try {
+      datos.actualizado = hoy();
+      const [h, t] = cuenta();
+      const r = await api("PUT", {
+        message: `Tareas: ${h}/${t} hechas`,
+        content: aB64(JSON.stringify(datos, null, 2) + "\n"),
+        sha, branch: CONFIG.rama,
+      });
+      if (r.status === 401) return tokenInvalido("Clave caducada.");
+      if (r.status === 403) return estado("mal", "Sin permiso de escritura (403)");
+      if (r.status === 409 || r.status === 422) {
+        estado("mal", "Conflicto: recargando…");
+        guardando = false;
+        return cargar();
+      }
+      if (!r.ok) return estado("mal", "Error " + r.status + " al guardar");
+      const j = await r.json();
+      sha = j.content.sha;
+      estado("ok", "Guardado · " + (j.commit.sha || "").slice(0, 7));
+    } catch {
+      estado("mal", "Sin conexión: el cambio NO se ha guardado");
+    } finally {
+      guardando = false;
+      if (sucio) { sucio = false; guardar(); }
+    }
+  }
+  function programar() {
+    render();
+    if (temporizador) clearTimeout(temporizador);
+    estado("trabajando", "Guardando en " + Math.round(CONFIG.espera / 1000) + " s…");
+    temporizador = setTimeout(guardar, CONFIG.espera);
+  }
+    const CATS = { app: "App", courses: "Courses", others: "Others" };
+  function tareasDe(c) {
+    return [...(c.tareas || []), ...(c.subcategorias || []).flatMap(x => x.tareas || [])];
+  }
+  const todas = () => datos.categorias.flatMap(tareasDe);
+  const cuenta = () => { const t = todas(); return [t.filter(x => x.hecho).length, t.length]; };
+  const VISTA = "tareas.vista";
+  let cerradas = {};
+  try {
+    const v = JSON.parse(localStorage.getItem(VISTA) || "{}");
+    cerradas = v.cerradas || {};
+  } catch (e) {}
+  const guardarVista = () => {
+    try { localStorage.setItem(VISTA, JSON.stringify({ cerradas })); } catch (e) {}
+  };
+  function catDeHoy() {
+    if (!datos.dias) return null;
+    const clave = ["D", "L", "M", "X", "J", "V", "S"][new Date().getDay()];
+    const hoy = datos.dias.filter(d => d.id === clave || d.id.startsWith(clave));
+    return hoy.length ? [...new Set(hoy.map(d => d.cat))] : null;
+  }
+  function pintarBloque() {
+    const caja = $("#bloque"), b = datos.bloque;
+    if (!b || !(b.objetivos || []).length) { caja.hidden = true; return; }
+    const objs = b.objetivos.map(o => typeof o === "string" ? { titulo: o } : o);
+    const fin = b.hasta ? new Date(b.hasta + "T00:00:00") : null;
+    const quedan = fin ? Math.ceil((fin - new Date()) / 86400000) : null;
+    caja.hidden = false;
+    caja.innerHTML = `
+      <span class="q">${esc(b.nombre || "Bloque")}</span>
+      ${objs.map(o => `<span class="obj" title="${esc(o.nota || "")}">${
+          o.icono ? `<span class="ic">${esc(o.icono)}</span>` : ""}${esc(o.titulo)}</span>`).join("")}
+      <span class="quedan">${quedan > 0 ? `quedan <b>${quedan}</b> d` : "cerrado"}</span>
+      <button class="desp" id="b-notas" title="Ver el porqué de cada objetivo">⌄</button>
+      <div id="notas-obj">${objs.filter(o => o.nota)
+          .map(o => `<div><b>${esc(o.titulo)}</b><br>${esc(o.nota)}</div>`).join("")}</div>`;
+    $("#b-notas").onclick = () => $("#notas-obj").classList.toggle("abierto");
+  }
+  const blobs = new Map();
+  async function traerFicha(ruta) {
+    if (blobs.has(ruta)) return blobs.get(ruta);
+    const url = `https://api.github.com/repos/${CFG.dueno}/${CFG.repo}/contents/${ruta}`;
+    const r = await fetch(url, { headers: { Authorization: "Bearer " + token,
+                                            Accept: "application/vnd.github.raw" } });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const bruto = await r.blob();
+    const u = URL.createObjectURL(new Blob([bruto], { type: "application/pdf" }));
+    blobs.set(ruta, u);
+    return u;
+  }
+  function cerrarVisor() {
+    $("#visor").hidden = true;
+    $("#v-cuerpo").innerHTML = "";
+  }
+  async function abrirFicha(a, pestana) {
+    const cuerpo = $("#v-cuerpo");
+    if (!pestana) {
+      $("#v-tit").textContent = a.titulo;
+      $("#v-sub").textContent = a.nota || "";
+      cuerpo.innerHTML = `<div class="aviso"><div class="gr">⏳</div><div>Trayendo la ficha…</div></div>`;
+      $("#visor").hidden = false;
+    }
+    try {
+      const u = await traerFicha(a.ruta);
+      if (pestana) { pestana.location = u; return; }
+      cuerpo.innerHTML = `<iframe src="${u}" title="${esc(a.titulo)}"></iframe>`;
+    } catch (e) {
+      const enGitHub = `https://github.com/${CFG.dueno}/${CFG.repo}/blob/main/${encodeURI(a.ruta)}`;
+      if (pestana) { pestana.location = enGitHub; return; }
+      cuerpo.innerHTML = `<div class="aviso"><div class="gr">⚠️</div>
+        <div>No he podido traer la ficha.<br>${esc(String(e.message || e))}</div>
+        <a class="btn" href="${enGitHub}" target="_blank" rel="noopener"
+           style="text-decoration:none">Verla en GitHub</a></div>`;
+    }
+  }
+  function pintarAccesos() {
+    const caja = $("#accesos"), lista = datos.accesos || [];
+    if (!lista.length) { caja.hidden = true; return; }
+    caja.hidden = false;
+    caja.innerHTML = `<span class="q">Fichas</span>` + lista.map((a, i) => `
+      <a href="#" data-ficha="${i}" title="${esc(a.nota || "")}">${
+        a.icono ? `<span class="ic">${esc(a.icono)}</span>` : ""}${esc(a.titulo)}<span class="ar">↗</span></a>`).join("");
+    caja.querySelectorAll("[data-ficha]").forEach(el => {
+      el.onclick = ev => {
+        ev.preventDefault();
+        const a = lista[+el.dataset.ficha];
+        const sinVisor = navigator.pdfViewerEnabled === false;
+        abrirFicha(a, sinVisor ? window.open("", "_blank") : null);
+      };
+    });
+  }
+  $("#v-cerrar").onclick = cerrarVisor;
+  $("#visor").onclick = ev => { if (ev.target.id === "visor") cerrarVisor(); };
+  document.addEventListener("keydown", ev => {
+    if (ev.key === "Escape" && !$("#visor").hidden) cerrarVisor();
+  });
+  $("#v-aparte").onclick = () => {
+    const f = $("#v-cuerpo").querySelector("iframe");
+    if (f) window.open(f.src, "_blank");
+  };
+  function filaTarea(x) {
+    return `<div class="t ${x.hecho ? "ok" : ""} ${x.bloqueada ? "bloq" : ""}">
+      <input type="checkbox" ${x.hecho ? "checked" : ""} ${x.bloqueada ? "disabled" : ""}
+             data-id="${esc(x.id)}" aria-label="${esc(x.texto)}">
+      <span class="x">${esc(x.texto)}${
+        x.bloqueada ? `<span class="lock" data-desbloquear="${esc(x.id)}" title="${esc(x.bloqueada)}"> 🔒</span>` : ""}${
+        x.dur ? `<span class="dur">${esc(x.dur)}</span>` : ""}</span>
+      <button class="del" data-borrar="${esc(x.id)}" aria-label="Borrar">×</button>
+    </div>`;
+  }
+  function grupo(id, titulo, nota, tareas, habitos) {
+    const hechas = tareas.filter(t => t.hecho);
+    const abiertas = tareas.filter(t => !t.hecho);
+    const cerrada = Boolean(titulo) && Boolean(cerradas[id]);
+    return `
+      ${titulo ? `<div class="sub ${cerrada ? "cerrada" : ""}" data-cerrar="${esc(id)}"
+            role="button" tabindex="0" aria-expanded="${!cerrada}">
+        <span class="chev">${cerrada ? "▸" : "▾"}</span>
+        <h3>${esc(titulo)}</h3>
+        ${cerrada && abiertas.length ? `<span class="cnt">${abiertas.length}</span>` : ""}
+        <button class="mas" data-anadir="${esc(id)}" title="Añadir tarea">+</button></div>` : ""}
+      ${cerrada ? "" : `
+      <div class="${titulo ? "items" : ""}">
+      ${nota ? `<div class="subnota">${esc(nota)}</div>` : ""}
+      <div class="destino" data-destino="${esc(id)}"></div>
+      ${abiertas.map(filaTarea).join("")}
+      ${(habitos || []).map(h => `<div class="hab"><span class="p">•</span>
+        <span>${esc(h.texto)}<span class="dur">${esc(h.cuando)}</span></span></div>`).join("")}
+      ${hechas.length ? `<div class="hechas">${hechas.map(filaTarea).join("")}</div>` : ""}
+      </div>`}`;
+  }
+  function render() {
+    $("#rotulo").textContent = datos.rotulo || "";
+    const [h, t] = cuenta();
+    $("#phechas").textContent = h;
+    $("#ptotal").textContent = t;
+    $("#pbar").style.width = t ? (h / t * 100).toFixed(1) + "%" : "0%";
+    pintarBloque();
+    pintarAccesos();
+    const hoy = catDeHoy() || [];
+    $("#tablero").innerHTML = datos.categorias.map(c => {
+      const propias = c.tareas || [], subs = c.subcategorias || [];
+      const tod = tareasDe(c), hechas = tod.filter(x => x.hecho).length;
+      const esHoy = hoy.includes(c.id);
+      return `
+        <section class="col ${esHoy ? "hoy" : ""}">
+          <header>
+            <div class="fila1">
+              <h2>${esc(c.titulo)}</h2>
+              ${esHoy ? `<span class="hoyb">HOY</span>` : ""}
+              <span class="n">${hechas}/${tod.length}</span>
+            </div>
+            <div class="dias" title="${esc(c.nota || "")}">${esc(c.dias || "")}${
+              c.horas ? " · " + esc(c.horas) : ""}</div>
+            <div class="barrita"><i style="width:${tod.length ? (hechas / tod.length * 100).toFixed(1) : 0}%"></i></div>
+          </header>
+          <div class="cuerpo">
+            ${propias.length || !subs.length ? grupo(c.id, null, null, propias, null) : ""}
+            ${subs.map(s2 => grupo(c.id + "/" + s2.id, s2.titulo, s2.nota,
+                                   s2.tareas || [], s2.habitos)).join("")}
+          </div>
+        </section>`;
+    }).join("");
+  }
+  document.addEventListener("change", e => {
+    const id = e.target.dataset?.id;
+    if (!id || !datos) return;
+    const x = todas().find(y => y.id === id);
+    if (!x) return;
+    x.hecho = e.target.checked;
+    x.fecha = x.hecho ? hoy() : null;
+    programar();
+  });
+  document.addEventListener("click", e => {
+    const d = e.target.closest("[data-desbloquear]");
+    if (d) {
+      const x = todas().find(y => y.id === d.dataset.desbloquear);
+      if (x && confirm(`Desbloquear «${x.texto}»?\n\nMotivo: ${x.bloqueada}`)) { delete x.bloqueada; programar(); }
+      return;
+    }
+    const b = e.target.closest("[data-borrar]");
+    if (b) {
+      const x = todas().find(y => y.id === b.dataset.borrar);
+      if (x && confirm(`Borrar «${x.texto}»?`)) {
+        const quitar = o => { if (o.tareas) o.tareas = o.tareas.filter(y => y.id !== x.id); };
+        for (const c of datos.categorias) { quitar(c); (c.subcategorias || []).forEach(quitar); }
+        programar();
+      }
+    }
+  });
+  document.addEventListener("click", e => {
+    const mas = e.target.closest("[data-anadir]");
+    if (!mas) return;
+    e.stopPropagation();
+    const destino = mas.dataset.anadir;
+    if (cerradas[destino]) { cerradas[destino] = false; guardarVista(); render(); }
+    const hueco = document.querySelector(`.destino[data-destino="${CSS.escape(destino)}"]`);
+    if (!hueco || hueco.querySelector("input")) return;
+    hueco.innerHTML = `<form class="nueva" data-destino="${destino}">
+      <input type="text" placeholder="Nueva tarea…" maxlength="200" required></form>`;
+    hueco.querySelector("input").focus();
+  });
+  function alternarSub(el) {
+    const k = el.dataset.cerrar;
+    cerradas[k] = !cerradas[k];
+    guardarVista(); render();
+  }
+  document.addEventListener("click", e => {
+    const c = e.target.closest("[data-cerrar]");
+    if (c && !e.target.closest("[data-anadir]")) alternarSub(c);
+  });
+  document.addEventListener("keydown", e => {
+    const c = e.target.closest?.("[data-cerrar]");
+    if (c && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); alternarSub(c); }
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && e.target.closest(".nueva")) render();
+  });
+  document.addEventListener("submit", e => {
+    const f = e.target.closest(".nueva");
+    if (!f) return;
+    e.preventDefault();
+    const inp = f.querySelector("input[type=text]");
+    const texto = inp.value.trim();
+    if (!texto) return;
+    const [catId, subId] = f.dataset.destino.split("/");
+    const cat = datos.categorias.find(c => c.id === catId);
+    if (!cat) return;
+    const destino = subId ? (cat.subcategorias || []).find(x => x.id === subId) : cat;
+    if (!destino) return;
+    (destino.tareas = destino.tareas || []).push({
+      id: `${destino.id}-${Date.now().toString(36)}`, texto, dur: null, hecho: false, fecha: null,
+    });
+    inp.value = "";
+    programar();
+  });
+  $("#b-refrescar").addEventListener("click", () => {
+    if (temporizador) { clearTimeout(temporizador); temporizador = null; guardar().then(cargar); }
+    else cargar();
+  });
+  $("#b-salir").addEventListener("click", () => {
+    if (confirm("¿Borrar el token de este dispositivo?")) {
+      localStorage.removeItem(CLAVE); localStorage.removeItem(CCFG); location.reload();
+    }
+  });
+  window.addEventListener("beforeunload", e => {
+    if (temporizador) { e.preventDefault(); e.returnValue = ""; }
+  });
+  async function entrar(t) {
+    token = t;
+    try { await pedirCfg(t); }
+    catch (e) { return tokenInvalido("No se pudo completar el acceso."); }
+    localStorage.setItem(CLAVE, t);
+    $("#puerta").hidden = true;
+    $("#app").hidden = false;
+    cargar();
+    if (CONFIG.sondeo > 0) setInterval(() => { if (!temporizador && !guardando) cargar(); }, CONFIG.sondeo);
+  }
+  let ventana = null, esperaLogin = null;
+  const btnGh = $("#p-github");
+  const ghHTML = btnGh.innerHTML;
+  function abortarLogin(msg) {
+    clearTimeout(esperaLogin); esperaLogin = null;
+    btnGh.disabled = false; btnGh.innerHTML = ghHTML;
+    try { ventana && ventana.close(); } catch {}
+    $("#p-err").style.display = "block";
+    $("#p-err").textContent = msg;
+    $("#p-manual").style.display = "block";
+    $("#p-alt").hidden = true;
+  }
+  if (!CONFIG.auth) {
+    btnGh.hidden = true;
+    $("#p-manual").style.display = "block";
+    $("#p-alt").hidden = true;
+  }
+  btnGh.addEventListener("click", () => {
+    $("#p-err").style.display = "none";
+    const a = 520, alt = 680;
+    const x = window.screenX + (window.outerWidth - a) / 2;
+    const y = window.screenY + (window.outerHeight - alt) / 2;
+    ventana = window.open(CONFIG.auth + "/login", "login-github",
+      `width=${a},height=${alt},left=${x},top=${y}`);
+    if (!ventana) {
+      $("#p-err").style.display = "block";
+      $("#p-err").textContent = "El navegador ha bloqueado la ventana. Permítela y vuelve a intentarlo.";
+      return;
+    }
+    btnGh.disabled = true;
+    btnGh.textContent = "Esperando a GitHub…";
+    clearTimeout(esperaLogin);
+    esperaLogin = setTimeout(() => abortarLogin(
+      "No se pudo contactar con el servicio de login. Usa la clave manual mientras tanto."), 45000);
+    const vigilar = setInterval(() => {
+      if (ventana && ventana.closed) {
+        clearInterval(vigilar);
+        if (btnGh.disabled) {
+          clearTimeout(esperaLogin); esperaLogin = null;
+          btnGh.disabled = false; btnGh.innerHTML = ghHTML;
+        }
+      }
+    }, 700);
+  });
+  window.addEventListener("message", e => {
+    if (!CONFIG.auth || e.origin !== new URL(CONFIG.auth).origin) return;
+    const d = e.data;
+    if (!d || d.fuente !== "tasks-auth") return;
+    clearTimeout(esperaLogin); esperaLogin = null;
+    btnGh.disabled = false;
+    btnGh.innerHTML = ghHTML;
+    if (d.error) {
+      $("#p-err").style.display = "block";
+      $("#p-err").textContent = d.error;
+      return;
+    }
+    if (d.token) {
+      try { ventana && ventana.close(); } catch {}
+      if (d.cfg) guardarCfg(d.cfg);
+      entrar(d.token);
+    }
+  });
+  $("#p-alt").addEventListener("click", () => {
+    $("#p-manual").style.display = "block";
+    $("#p-alt").hidden = true;
+    $("#p-token").focus();
+  });
+  $("#p-ok").addEventListener("click", () => {
+    const t = $("#p-token").value.trim();
+    if (!t) return;
+    $("#p-err").style.display = "none";
+    entrar(t);
+  });
+  $("#p-token").addEventListener("keydown", e => { if (e.key === "Enter") $("#p-ok").click(); });
+  const guardado = localStorage.getItem(CLAVE);
+  if (guardado) entrar(guardado);
+  else { $("#puerta").hidden = false; $("#p-token").focus(); }
+})();
+</script>
+</html>
