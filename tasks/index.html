@@ -3,14 +3,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'><path%20fill='%23D8481E'%20d='M8%200C3.58%200%200%203.58%200%208c0%203.54%202.29%206.53%205.47%207.59.4.07.55-.17.55-.38%200-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01%201.08.58%201.23.82.72%201.21%201.87.87%202.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95%200-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12%200%200%20.67-.21%202.2.82.64-.18%201.32-.27%202-.27s1.36.09%202%20.27c1.53-1.04%202.2-.82%202.2-.82.44%201.1.16%201.92.08%202.12.51.56.82%201.27.82%202.15%200%203.07-1.87%203.75-3.65%203.95.29.25.54.73.54%201.48%200%201.07-.01%201.93-.01%202.2%200%20.21.15.46.55.38A8.01%208.01%200%200%200%2016%208c0-4.42-3.58-8-8-8Z'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'><path%20fill='%23512BD4'%20d='M8%200C3.58%200%200%203.58%200%208c0%203.54%202.29%206.53%205.47%207.59.4.07.55-.17.55-.38%200-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01%201.08.58%201.23.82.72%201.21%201.87.87%202.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95%200-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12%200%200%20.67-.21%202.2.82.64-.18%201.32-.27%202-.27s1.36.09%202%20.27c1.53-1.04%202.2-.82%202.2-.82.44%201.1.16%201.92.08%202.12.51.56.82%201.27.82%202.15%200%203.07-1.87%203.75-3.65%203.95.29.25.54.73.54%201.48%200%201.07-.01%201.93-.01%202.2%200%20.21.15.46.55.38A8.01%208.01%200%200%200%2016%208c0-4.42-3.58-8-8-8Z'/></svg>">
 <title>·</title>
 <style>
 :root{
   --bg:#EBEEF2; --sf:#FFFFFF; --sf2:#F5F7F9; --sf3:#EDF1F5;
   --ink:#14181E; --ink2:#3B4551; --mut:#6C7784;
   --bd:#DEE4EA; --bd2:#C9D2DB;
-  --acc:#D8481E; --accink:#B23A16; --accbg:#FBE7DE;
+  --acc:#512BD4; --accink:#3E21A1; --accbg:#EAE6FA;
   --good:#2C7A4E; --goodbg:#DCEFEB;
   --warn:#B47714; --warnbg:#F5E9CF;
   --dang:#BE3A31; --dangbg:#F7E2E0;
@@ -23,7 +23,7 @@
   --bg:#0B0E12; --sf:#151B22; --sf2:#11161C; --sf3:#1B222A;
   --ink:#ECF1F6; --ink2:#B8C3CE; --mut:#8595A2;
   --bd:#242D36; --bd2:#36424E;
-  --acc:#FF6A3C; --accink:#FF8A63; --accbg:#2E1710;
+  --acc:#8768F3; --accink:#AB94F9; --accbg:#1D1537;
   --good:#4CBCA7; --goodbg:#102A25;
   --warn:#E1AB4F; --warnbg:#2E230E;
   --dang:#E86A62; --dangbg:#2E1413;
@@ -158,8 +158,16 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 .items .t{padding-left:9px}
 .items .subnota{padding-left:9px}
 .items .hab{padding-left:9px}
-.hechas{margin-top:5px}
+.hechas{margin:0;border-top:1px solid var(--bd);background:var(--sf3);
+  padding:7px 0 9px;flex:0 0 auto}
 .hechas .t{opacity:.5}
+.hechas-cab{padding:0 13px 5px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--mut)}
+.hechas-sub{padding:6px 13px 2px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mut);opacity:.8}
+.t .edit{width:100%;font:inherit;font-size:12.5px;line-height:1.35;color:var(--ink);
+  background:var(--sf);border:1px solid var(--acc);border-radius:6px;padding:2px 6px;outline:none}
+.hechas-sub .entera{font-size:8px;letter-spacing:.06em;color:var(--acc);opacity:.9}
 .nueva{display:flex;gap:5px;padding:4px 13px 2px}
 .nueva input{flex:1;min-width:0;font:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--acc);
   border-radius:7px;background:var(--sf);color:var(--ink)}
@@ -462,14 +470,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
     return `<div class="t ${x.hecho ? "ok" : ""} ${x.bloqueada ? "bloq" : ""}">
       <input type="checkbox" ${x.hecho ? "checked" : ""} ${x.bloqueada ? "disabled" : ""}
              data-id="${esc(x.id)}" aria-label="${esc(x.texto)}">
-      <span class="x">${esc(x.texto)}${
+      <span class="x" data-editar="${esc(x.id)}" title="Doble clic para editar">${esc(x.texto)}${
         x.bloqueada ? `<span class="lock" data-desbloquear="${esc(x.id)}" title="${esc(x.bloqueada)}"> 🔒</span>` : ""}${
         x.dur ? `<span class="dur">${esc(x.dur)}</span>` : ""}</span>
       <button class="del" data-borrar="${esc(x.id)}" aria-label="Borrar">×</button>
     </div>`;
   }
   function grupo(id, titulo, nota, tareas, habitos) {
-    const hechas = tareas.filter(t => t.hecho);
     const abiertas = tareas.filter(t => !t.hecho);
     const cerrada = Boolean(titulo) && Boolean(cerradas[id]);
     return `
@@ -486,9 +493,28 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
       ${abiertas.map(filaTarea).join("")}
       ${(habitos || []).map(h => `<div class="hab"><span class="p">•</span>
         <span>${esc(h.texto)}<span class="dur">${esc(h.cuando)}</span></span></div>`).join("")}
-      ${hechas.length ? `<div class="hechas">${hechas.map(filaTarea).join("")}</div>` : ""}
       </div>`}`;
   }
+  function panelHecho(c) {
+    const bloques = [];
+    const propias = (c.tareas || []).filter(t => t.hecho);
+    if (propias.length) bloques.push({ titulo: null, tareas: propias });
+    for (const s of c.subcategorias || []) {
+      const hs = (s.tareas || []).filter(t => t.hecho);
+      if (hs.length) bloques.push({ titulo: s.titulo, tareas: hs, entera: hs.length === (s.tareas || []).length });
+    }
+    const total = bloques.reduce((n, b) => n + b.tareas.length, 0);
+    if (!total) return "";
+    return `
+      <div class="hechas">
+        <div class="hechas-cab">${total} hecha${total > 1 ? "s" : ""}</div>
+        ${bloques.map(b => `
+          ${b.titulo ? `<div class="hechas-sub">${esc(b.titulo)}${
+              b.entera ? ` <span class="entera">completa</span>` : ""}</div>` : ""}
+          ${b.tareas.map(filaTarea).join("")}`).join("")}
+      </div>`;
+  }
+
   function render() {
     $("#rotulo").textContent = datos.rotulo || "";
     const [h, t] = cuenta();
@@ -516,9 +542,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
           </header>
           <div class="cuerpo">
             ${propias.length || !subs.length ? grupo(c.id, null, null, propias, null) : ""}
-            ${subs.map(s2 => grupo(c.id + "/" + s2.id, s2.titulo, s2.nota,
-                                   s2.tareas || [], s2.habitos)).join("")}
+            ${subs.filter(s2 => (s2.tareas || []).some(t => !t.hecho) || (s2.habitos || []).length)
+                   .map(s2 => grupo(c.id + "/" + s2.id, s2.titulo, s2.nota,
+                                    s2.tareas || [], s2.habitos)).join("")}
           </div>
+          ${panelHecho(c)}
         </section>`;
     }).join("");
   }
@@ -531,6 +559,36 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
     x.fecha = x.hecho ? hoy() : null;
     programar();
   });
+  document.addEventListener("dblclick", e => {
+    const s = e.target.closest("[data-editar]");
+    if (!s || !datos || s.querySelector("input")) return;
+    const x = todas().find(y => y.id === s.dataset.editar);
+    if (!x) return;
+
+    const antes = x.texto;
+    const caja = document.createElement("input");
+    caja.type = "text";
+    caja.className = "edit";
+    caja.value = antes;
+    s.replaceChildren(caja);
+    caja.focus();
+    caja.select();
+
+    let cerrado = false;
+    const cerrar = (guardar) => {
+      if (cerrado) return;
+      cerrado = true;
+      const val = caja.value.trim();
+      if (guardar && val && val !== antes) { x.texto = val; programar(); }
+      else render();
+    };
+    caja.addEventListener("keydown", ev => {
+      if (ev.key === "Enter") { ev.preventDefault(); cerrar(true); }
+      if (ev.key === "Escape") { ev.preventDefault(); cerrar(false); }
+    });
+    caja.addEventListener("blur", () => cerrar(true));
+  });
+
   document.addEventListener("click", e => {
     const d = e.target.closest("[data-desbloquear]");
     if (d) {
